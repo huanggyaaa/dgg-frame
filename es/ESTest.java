@@ -82,13 +82,19 @@ public class ESTest {
     }
 
     /**
-     * 插入数据，必须指定 ID
+     * 插入数据
      * @throws Exception
      */
     @Test
     public void insert() throws Exception {
         User user = new User(50001L , "HanMeimei", "111111", new Date(), 27, "成都钻石广场");
-        IndexResponse indexResponse = esTemplate.insertDocment("huanggy_test", "user", "1002", user);
+        
+        // 插入数据
+        IndexResponse indexResponse = esTemplate.insertDocment("huanggy_test", "user", user);
+
+        // 指定 ID，实体中会有 ID 这里可以不写
+        esTemplate.insertDocment("huanggy_test", "user", "1002", user);
+		
         System.out.println(indexResponse.status().getStatus()); // 201
     }
 
