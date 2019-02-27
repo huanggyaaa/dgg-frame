@@ -163,12 +163,14 @@ public class ESTest {
     @Test
     public void search() throws Exception {
 
-        // 构建必要条件：必须包含 username 且 值为 Milk2 ; 必须包含 password 且值为 22
-        MatchPhraseQueryBuilder term1 = QueryBuilders.matchPhraseQuery("password", "111111");
-        MatchPhraseQueryBuilder term2 = QueryBuilders.matchPhraseQuery("userName", "Milk");
+        // 使用包含的短语进行查询，顺序无差；比如 成都砖石广场 ，可以匹配 “砖石”、“都砖石”、“广场”等（不进行分词）
+        MatchPhraseQueryBuilder term1 = QueryBuilders.matchPhraseQuery("addr", "砖石");
+		
+		// addr 包含 “成” 或 “都” 都能查询出来，中文按照每个字进行分词，英文按空格来分词（进行分词）
+        MatchQueryBuilder term2 = QueryBuilders.matchQuery("addr", "成都");
 
-        // 查不到数据，也搞不明白为什么，fuck
-        // TermQueryBuilder term3 = QueryBuilders.termQuery("addr.keyword", "美国");
+        // 匹配 addr 字段值为 成都砖石广场 的数据
+        TermQueryBuilder term3 = QueryBuilders.termQuery("addr.keyword", "成都砖石广场");
 
         // 匹配查询：addr 值必须包含 成都；*：任意多个个字符；?：任意一个字符
         WildcardQueryBuilder term7 = QueryBuilders.wildcardQuery("addr", "*国*");
@@ -186,7 +188,7 @@ public class ESTest {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         // 条件塞进查询对象
-        BoolQueryBuilder mustTerms = boolQueryBuilder.must(term1).must(term2).must(term4).must(term5).mustNot(term6).must(term7);
+        BoolQueryBuilder mustTerms = boolQueryBuilder.must(term1).must(term2).must(term3).must(term4).must(term5).mustNot(term6).must(term7);
 
         // 第 5 条开始取 5 条数据，按照 born 字段 顺序排序
         SearchSourceBuilder query = new SearchSourceBuilder().query(mustTerms).size(5).sort("born", SortOrder.ASC).from(0);
